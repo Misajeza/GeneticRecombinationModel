@@ -1,0 +1,74 @@
+
+<7.12.2024>
+	Dnes jsem dodìlal první funkèní verzi modelu.
+Zatím bohuel postrádá opakování s kumulací dat a opakování posouvající geny. 
+Zatím tedy ukládá jen jeden øádek do tabulek a to poèet
+úspìšnıch rekombinací a poèet ivıch mutantù za generaci.
+	Z prvních testù to vypadá, e v pøípadì, e je donorskı genom kompletní, ùspìšnost vzniku 
+ivotaschoného hybrida narùstá s poètem generací. 
+V opaèném pøípadì je i vısledek pøesnì opaènı. Testováno na 1kb, pøi vyšších
+velikostech (10kb) genomu není tento vısledek patrnı.
+Zatím nelze vylouèit chybu programu
+	Je tøeba pøedìlat funkci ChooseWhereToPlaceGene. 
+Dále by bylo vhodné vytvoøit metodu ToGenom pro tøídu Sequence.
+
+<8.12.2024>
+	Z testù vyplívá, e v pøípadì e je donorskı genom neviabilní, negativní dopad
+se projeví pouze na viabilnosti hybridù, ne na úspìšnosti hybridizace
+Zlepšující se schopnost rekombinace by mohla bıt zpùsobena postupnım nahrazením akceptorského genomu genomem donorskım.
+Naopak zhoršující se tendence, kdy je jeden z donorskıch genù vadnı mùe bıt zpùsobena chybou, která nechává nefunkèní hybridy v populaci.
+Obì hypotézy je potøeba otestovat. 
+
+<9.12.2024>
+	Provedl jsem testy obou døíve zmínìnıch hypotéz a zdají se bıt validní.
+Pøidal jsem tøídu interface a ProcessBar které zobrazují prùbìh simulace. 
+Dodìlal jsem smyèku posouvající geny (zatím dost provyzorní), a smyèku repetice zajišující dostateènı objem dat.
+Po necelıch dvou tøetinách prùbìhu simulace, model spadne s chybovou hláškou "Length cannot be less than zero.". V metodì MoveGene dostane promìná pos zápornou hodnotu.
+Mùe bıt zpùsobeno Vadnou metodou ChooseWhereToPlaceGene(). Další moné vysvìtlení je, e kdy je gen umístìn trochu dál ne zaèínal, ale blíe ne konèil
+a zárovìò je jeho délka vìtší vzdálenost nové pozice od zaèátku sekvence.
+	Druhé vysvìtlení bylo správné, chyba vyøešena.
+
+<19.12.2024>
+	Po dlouhém testování zjištìna chyba v metodì ChooseWhereToPlace(). Chyba spoèívá v neseøazeném poly genù. 
+Aktuální stav metody však vyaduje seøazenost podle pozice zaèátku genu v sekvenci. Aktuálnì hledám nejefektivnìjší øešení problému.
+Jeden z monıch pøístupù je seøadit pole, to však není efektivní øešení. 
+
+<20.12.2023>
+	Vytvoøeno efektivní øešení. Metoda Sequnece.ToNonCodingArray() Vytvoøí pole rozmezí nekódujících èástí a následnì metoda
+RNG.ChooseWhereToPlace náhodnì vybere jedno z tìchto rozmezí a následnì vygeneruje náhodné èíslo v rozmezí. Vyskytuje se chyba zpùsobující umístìní genu
+do jiného.
+
+<21.12.2023>
+	Gen je obèas umístìn o jeden znak dovnitø jiného genu. Kdy je zaèáteèní pozice genu stejná jako koncová pozice posouvaného genu, nedojde k jeho korekci oné zaèáteèní pozice.
+viz vıstup:
+
+what:3,where:10
+ABCDEFGHCHYZabcdefghIJKLMNOPQRSTUVWXEijklEFGHEijklmnopqrstijkluvwxyz
+<0>(0,10)ABCDEFGHCH
+<1>(21,30)JKLMNOPQR
+<2>(35,41)XEijkl
+<3>(10,20)YZabcdefgh
+<4>(50,53)mno
+<5>(54,58)qrst
+
+True
+what:0,where:34
+YZabcdefghIJKLMNOPQRSTUVABCDEFGHCHWXEijklEFGHEijklmnopqrstijkluvwxyz
+<0>(24,34)ABCDEFGHCH
+<1>(11,20)JKLMNOPQR
+<2>(35,41)XEijkl
+<3>(10,10)
+<4>(50,53)mno
+<5>(54,58)qrst
+
+False
+
+<28.12.2024>
+	Chyba zmínìná v pøedchozím zápisu opravena. byla zpùsobena tím e k posunu bodu nedošlo, mìl-li stejnou pozici jako koncovı bod posouvaného genu.
+Objevena nová chyba. V pøípadì e nemá první gen v mnoinì nejniší pozici je chybnì definována mezera mezi prvním genem a zaèátkem sekvence. 
+To samé platí i pro mezeru mezi posledním genem a koncem sekvence. Po dalším testování se kukázalo, e i toto øešení nepodporuje neseøazená pole genù.
+Nutné pøedìlat celou funkci.
+
+<4.1.2025>
+	Nalezena a opravena chyba, podobná døive zmínìné, ale vyskytovala se v opaèném pøípadì, tedy kdy bylo cílové pøed místem vıchozím.
+Pøedìlán systém vytváøení polí genù, a polí mezer. Toto øešení se zdá bıt funkèní. 
