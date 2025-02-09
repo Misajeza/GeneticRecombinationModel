@@ -28,14 +28,14 @@ namespace Martinus_prototyp2
             int lastStart = 0;
             for (int i = 0; i < Start.Length; i++)
             {
-                if (Start[i].Position >= pos && Start[i].Position < pos + len) tempStart[lastStart++] = Start[i];
+                if (Start[i].Position >= pos && Start[i].Position < pos + len +1) tempStart[lastStart++] = Start[i];
             }
 
             Mark[] tempStop = new Mark[Stop.Length];
             int lastStop = 0;
             for (int i = 0; i < Stop.Length; i++)
             {
-                if (Stop[i].Position >= pos && Stop[i].Position < pos + len) tempStop[lastStop++] = Stop[i];
+                if (Stop[i].Position >= pos && Stop[i].Position < pos + len + 1) tempStop[lastStop++] = Stop[i];
             }
             Sequence outp = new Sequence(DNA.Substring(pos, len), new Mark[lastStart], new Mark[lastStop]);
 
@@ -51,18 +51,36 @@ namespace Martinus_prototyp2
         {
             int stopIndx = FindStopIndx(indx);
             if (stopIndx == -1) { return; }
-            string moved = DNA.Substring(Start[indx].Position, Stop[stopIndx].Position - Start[indx].Position);
-            if (pos > Start[indx].Position) if (pos < Stop[stopIndx].Position) pos = Start[indx].Position;
-            else pos -= Stop[stopIndx].Position - Start[indx].Position;
+            Move(Start[indx].Position, Stop[stopIndx].Position - Start[indx].Position+1, pos);
+            //string moved = DNA.Substring(Start[indx].Position, Stop[stopIndx].Position - Start[indx].Position);
+            //if (pos > Start[indx].Position) if (pos < Stop[stopIndx].Position) pos = Start[indx].Position;
+            //else pos -= Stop[stopIndx].Position - Start[indx].Position;
 
-            DNA = DNA.Substring(0, Start[indx].Position) + DNA.Substring(Stop[stopIndx].Position);
+            //DNA = DNA.Substring(0, Start[indx].Position) + DNA.Substring(Stop[stopIndx].Position);
+            //DNA = DNA.Substring(0, pos) + moved + DNA.Substring(pos); //-44
+
+            //Corection(Start, indx, indx, stopIndx, pos);
+            //Corection(Stop, stopIndx, indx, stopIndx, pos+1);
+
+            //Stop[stopIndx].Position = Stop[stopIndx].Position - Start[indx].Position + pos;
+            //Start[indx].Position = pos;
+        }
+        public void Move(int initPos, int length, int pos)
+        {
+            if (pos >= initPos && pos < initPos + length) { return; }
+            length -=1;
+            string moved = DNA.Substring(initPos, length+1);
+            if (initPos < pos)
+            {
+                pos -= length;
+            }
+            else pos++;
+
+            DNA = DNA.Substring(0, initPos) + DNA.Substring(initPos+length+1);
             DNA = DNA.Substring(0, pos) + moved + DNA.Substring(pos); //-44
 
-            Corection(Start, indx, indx, stopIndx, pos);
-            Corection(Stop, stopIndx, indx, stopIndx, pos+1);
-
-            Stop[stopIndx].Position = Stop[stopIndx].Position - Start[indx].Position + pos;
-            Start[indx].Position = pos;
+            Start.CorrectionInsert(initPos, length, pos, DNA.Length);
+            Stop.CorrectionInsert(initPos, length, pos, DNA.Length);
         }
         public bool Integrate(Sequence seq)
         {
@@ -70,7 +88,7 @@ namespace Martinus_prototyp2
             string end = seq.DNA.Substring(seq.DNA.Length - Settings.comparedSequenceSize);
 
             int[] possibleStarts = new int[0];
-            int lastIndex = 0;
+            int lastIndex = -1;
             while (true)
             {
                 lastIndex = DNA.IndexOf(strt, lastIndex + 1);
@@ -101,7 +119,7 @@ namespace Martinus_prototyp2
                 for (int j = 0; j < Stop.Length; j++)
                 {
                     if (Start[i].Index != Stop[j].Index) continue;
-                    if (Stop[j].Position - Start[i].Position == original.Genes[Start[i].Index].Length) isGene[Start[i].Index] = true;
+                    if (Stop[j].Position - Start[i].Position+1 == original.Genes[Start[i].Index].Length) isGene[Start[i].Index] = true;
                 }
             }
             for (int i = 0; i < isGene.Length; i++) if (!isGene[i]) return false; 
@@ -158,19 +176,35 @@ namespace Martinus_prototyp2
             Gene[] genes = ToGeneArray().OnlyHKG(genom);
             Gene[] outp = new Gene[genes.Length+1];
             outp[0] = new Gene(-1, 0, DNA.Length);
-            int length = genes.Length;
-            int candidatIndex = -1;
-            for (int i = 0; i < outp.Length-1; i++) {
-                for (int j = 0; j < length; j++) {
-                    if (genes[j].Start >= outp[i].Start && genes[j].Start < outp[i].Stop) {
-                        candidatIndex = j;
-                        outp[i].Stop = genes[j].Start;
-                    }  
+            for (int i = 0;i < outp.Length-1; i++)
+            {
+                outp[i+1] = new Gene(-1, 0, DNA.Length-1);
+                for (int j = 0; j < genes.Length; j++)
+                {
+                    if (genes[j].Start <  outp[i].Stop && genes[j].Start >= outp[i].Start)
+                    {
+                        outp[i].Stop = genes[j].Start-1;
+                        outp[i+1].Start = genes[j].Stop;
+                        if (outp[i].Start == 0 && outp[i].Stop == -1) outp[i].Stop = 0;
+                    }
                 }
-                outp[i + 1] = new Gene(-1, genes[candidatIndex].Stop, DNA.Length);
-                genes[candidatIndex] = genes[--length];
             }
             return outp;
+
+            //outp[0] = new Gene(-1, 0, DNA.Length);
+            //int length = genes.Length;
+            //int candidatIndex = -1;
+            //for (int i = 0; i < outp.Length-1; i++) {
+            //    for (int j = 0; j < length; j++) {
+            //        if (genes[j].Start >= outp[i].Start && genes[j].Start < outp[i].Stop) {
+            //            candidatIndex = j;
+            //            outp[i].Stop = genes[j].Start;
+            //        }  
+            //    }
+            //    outp[i + 1] = new Gene(-1, genes[candidatIndex].Stop, DNA.Length);
+            //    genes[candidatIndex] = genes[--length];
+            //}
+            //return outp;
             {
                 //Gene[] genes = ToGeneArray();
                 //Gene[] spaces = new Gene[Start.Length + 1];
@@ -218,27 +252,27 @@ namespace Martinus_prototyp2
             string outp = DNA + "\n";
             for (int i = 0; i < genes.Length; i++)
             {
-                if (genes[i].Start <= genes[i].Stop) outp += $"<{genes[i].Index}>({genes[i].Start},{genes[i].Stop}){DNA.Substring(genes[i].Start, genes[i].Stop - genes[i].Start)}\n";
+                if (genes[i].Start <= genes[i].Stop) outp += $"<{genes[i].Index}>({genes[i].Start},{genes[i].Stop}){DNA.Substring(genes[i].Start, genes[i].Stop - genes[i].Start+1)}\n";
             }
             return outp;
         }
-        void Corection(Mark[] mark, int compIndx, int indx, int stopIndx, int pos)
-        {
-            for (int i = 0; i < mark.Length; i++)
-            {
-                if (mark[i].Position == mark[compIndx].Position && i == compIndx) continue;
-                if (mark[i].Position == mark[compIndx].Position && i != compIndx) mark[i].Position += pos - Start[indx].Position;
-                else if (mark[i].Position > Start[indx].Position && mark[i].Position < Stop[stopIndx].Position) mark[i].Position += pos - Start[indx].Position;
-                else if (pos < Start[indx].Position)
-                {
-                    if (mark[i].Position >= pos && mark[i].Position <= Start[indx].Position) { mark[i].Position += Stop[stopIndx].Position - Start[indx].Position; }
-                }
-                else if (pos > Start[indx].Position)
-                {
-                    if (mark[i].Position < pos + Stop[stopIndx].Position - Start[indx].Position && mark[i].Position >= Stop[stopIndx].Position) { mark[i].Position -= Stop[stopIndx].Position - Start[indx].Position; }
-                }
-            }
-        }
+        //void Corection(Mark[] mark, int compIndx, int indx, int stopIndx, int pos)
+        //{
+        //    for (int i = 0; i < mark.Length; i++)
+        //    {
+        //        if (mark[i].Position == mark[compIndx].Position && i == compIndx) continue;
+        //        if (mark[i].Position == mark[compIndx].Position && i != compIndx) mark[i].Position += pos - Start[indx].Position;
+        //        else if (mark[i].Position > Start[indx].Position && mark[i].Position < Stop[stopIndx].Position) mark[i].Position += pos - Start[indx].Position;
+        //        else if (pos < Start[indx].Position)
+        //        {
+        //            if (mark[i].Position >= pos && mark[i].Position <= Start[indx].Position) { mark[i].Position += Stop[stopIndx].Position - Start[indx].Position; }
+        //        }
+        //        else if (pos > Start[indx].Position)
+        //        {
+        //            if (mark[i].Position < pos + Stop[stopIndx].Position - Start[indx].Position && mark[i].Position >= Stop[stopIndx].Position) { mark[i].Position -= Stop[stopIndx].Position - Start[indx].Position; }
+        //        }
+        //    }
+        //}
         Mark[] Corection(Mark[] mark, Mark[] seqMark, int start, int stop, int len)
         {
 
@@ -251,7 +285,7 @@ namespace Martinus_prototyp2
                     temp[lastIndx] = mark[i];
                     temp[lastIndx++].Position += (len - (stop - start));
                 }
-                else if (mark[i].Position <= start)
+                else if (mark[i].Position < start)
                 {
                     temp[lastIndx] = mark[i];
                     temp[lastIndx++].Position = mark[i].Position;
@@ -302,7 +336,7 @@ namespace Martinus_prototyp2
             return mark[i].Position;
         }
     }
-    internal struct Mark
+    public struct Mark
     {
         public Mark(int Index, int Position)
         {
@@ -312,13 +346,39 @@ namespace Martinus_prototyp2
         public int Index { get; set; }
         public int Position { get; set; }
     }
+    public static class MarkArray
+    {
+        public static void CorrectionInsert(this Mark[] self, int pos, int length, int finalPos, int DNALength) 
+        {
+            for (int i = 0; i < self.Length; i++)
+            {
+                if (pos + length > DNALength)
+                {
+                    throw new Exception("Position of mark is bigger than length of DNA");
+                }
+                if (self[i].Position >= pos && self[i].Position <= pos + length)
+                {
+                    self[i].Position = self[i].Position - pos + finalPos;
+                    continue;
+                }
+                else
+                {
+                    if (self[i].Position > pos && self[i].Position <= finalPos + length && pos < finalPos)
+                        self[i].Position -= length+1;
+
+                    else if (self[i].Position < pos && self[i].Position >= finalPos)
+                        self[i].Position += length+1;
+                }
+            }
+        }
+    }
 
     public class Gene
     {
         public int Index { get; set; }
         public int Start { get; set; }
         public int Stop { get; set; }
-        public int Length { get { return Stop - Start; } }
+        public int Length { get { return Stop - Start +1; } }
         public Gene(int Index, int Start, int Stop)
         {
             this.Index = Index;

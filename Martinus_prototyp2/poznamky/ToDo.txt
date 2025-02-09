@@ -1,5 +1,6 @@
 ﻿
-#1 zaměřit se na náhodnost cílových pozit při přenosech genů.
-#2 omezit velikost darované sekvence při rekombinaci, zjistit vliv na výsledky.
 #3 při translokaci přenášet i část balastu
 #4 otestovat korekci při rekombinaci
+
++2 omezit velikost darované sekvence při rekombinaci, zjistit vliv na výsledky.
++1 zaměřit se na náhodnost cílových pozit při přenosech genů.

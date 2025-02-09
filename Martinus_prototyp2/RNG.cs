@@ -42,7 +42,7 @@ namespace Martinus_prototyp2
             {
                 int moved = random.Next(outp.Genes[i].Stop);
                 outp.Genes[i].Stop += minSize - moved;
-                outp.Genes[random.Next(geneNumber)].Stop += moved;
+                outp.Genes[random.Next(geneNumber)].Stop += moved-1;
             }
             for (int i = 0; i < geneNumber; i++)
             {
@@ -60,22 +60,31 @@ namespace Martinus_prototyp2
             }
             return outp;
         }
-        public static int ChooseWhereToPlaceGene(Genom genom, bool inGenes = false)
+        //public static int ChooseWhereToPlaceGene(Genom genom, bool inGenes = false)
+        //{
+        //    int genesLenInTotal = 0;
+        //    for (int i = 0; i < genom.Genes.Length; i++) genesLenInTotal += genom.Genes[i].Length;
+        //    int spaces = random.Next(genom.DNA.Length-genesLenInTotal);
+        //    int genes = 0;
+        //    for (int i = 0; i < genom.Genes.Length; i++) if (genom.Genes[i].Start < spaces + genes) genes += genom.Genes[i].Length;
+        //    return spaces + genes;
+        //}
+        public static int ChooseWhereToPlaceGene(Sequence sequence, Genom HKGenes,PlaceMode mode = PlaceMode.OutOfGenes)
         {
-            int genesLenInTotal = 0;
-            for (int i = 0; i < genom.Genes.Length; i++) genesLenInTotal += genom.Genes[i].Length;
-            int spaces = random.Next(genom.DNA.Length-genesLenInTotal);
-            int genes = 0;
-            for (int i = 0; i < genom.Genes.Length; i++) if (genom.Genes[i].Start < spaces + genes) genes += genom.Genes[i].Length;
-            return spaces + genes;
-        }
-        public static int ChooseWhereToPlaceGene(Sequence sequence, Genom original, bool inGenes = false)
-        {
-            Gene[] range = sequence.ToNonGeneArray(original);
-            int rndCluster = random.Next(range.Length);
-            return random.Next(range[rndCluster].Start, range[rndCluster].Stop);
-
-
+            //Gene[] range = sequence.ToNonGeneArray(original);
+            //int rndCluster = random.Next(range.Length);
+            //return random.Next(range[rndCluster].Start, range[rndCluster].Stop);
+            switch (mode)
+            {
+                case PlaceMode.OutOfGenes:
+                    Gene[] spaces = sequence.ToNonGeneArray(HKGenes);
+                    int[] weights = new int[spaces.Length];
+                    for (int i = 0; i < weights.Length; i++) { weights[i] = spaces[i].Length-1; if (weights[i] == 0) weights[i] = 1; }
+                    Gene selectedSpace = spaces[WeightedChoice(weights)];
+                    //Gene selectedSpace = spaces[random.Next(spaces.Length)];
+                    return random.Next(selectedSpace.Start, selectedSpace.Stop);
+            }
+            return -1;
             //Gene[] Genes= sequence.ToGeneArray();
             //int genesLenInTotal = 0;
             //for (int i = 0; i < Genes.Length; i++) genesLenInTotal += Genes[i].Length;
@@ -83,6 +92,47 @@ namespace Martinus_prototyp2
             //int genes = 0;
             //for (int i = 0; i < Genes.Length; i++) if (Genes[i].Start < spaces + genes) genes += Genes[i].Length-1;//-1
             //return spaces + genes;
+        }
+        public static int WeightedChoice(int[] weights)
+        {
+            int[] indexes = Enumerable.Range(0, weights.Length).ToArray();
+            int totalWeight = weights.Sum();
+            int choice = random.Next(totalWeight);
+            int sum = 0;
+            foreach (int i in indexes)
+            {
+                sum += weights[i];
+                if (choice < sum)
+                {
+                    return i;
+                }
+            }
+
+            return 0;
+            //Random random = new Random();
+            //int[] indexes = Enumerable.Range(0,weights.Length).ToArray();
+            //int selected = -1;
+            //int bestScore = 0;
+            //Shuffle(indexes);
+            //foreach(int i in indexes)
+            //{
+            //    //Gene gene = genes[i];
+            //    int s = random.Next(0, weights[i]);
+            //    if (bestScore <= s)
+            //    {
+            //        selected = i;
+            //        bestScore = s;
+            //    }
+            //}
+            //return selected;
+        }
+
+        public enum PlaceMode
+        {
+            OutOfGenes,
+            InGenes,
+            Cluster,
+            Random
         }
     }
 }

@@ -19,12 +19,13 @@ namespace Martinus_prototyp2
             const int POPULATION_SIZE = 1_000;
 
             const int MAX_GENERATION_NUMBER = 100;
-            const int MAX_SHIFT_GENES_NUMBER = 3;
+            const int MAX_SHIFT_GENES_NUMBER = 10;
             const int MAX_REPETITIONS_NUMBER = 100;
 
             const float ACTIVE_FRACTION_OF_SEQUENCES = 0.1f;
 
             const int MIN_TRANSFER_SIZE = 40;
+            const int MAX_TRANSFER_SIZE = 200;
 
             //-------SETUP--------
             Data data = new Data("Experiment1", MAX_SHIFT_GENES_NUMBER, MAX_GENERATION_NUMBER);
@@ -63,7 +64,8 @@ namespace Martinus_prototyp2
                             int acceptor = RNG.Int(population1.Length);
                             int donor = RNG.Int(population2.Length);
                             int seqPos = RNG.Int(population2[donor].DNA.Length - MIN_TRANSFER_SIZE);
-                            int seqLen = RNG.Int(MIN_TRANSFER_SIZE, population2[donor].DNA.Length - seqPos);
+                            int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                            if (seqLen > population2[donor].DNA.Length - seqPos) seqPos = population2[donor].DNA.Length - seqPos;
                             bool isSucces = population1[acceptor].Integrate(population2[donor].Subsequence(seqPos, seqLen));
                             bool isViable = population1[acceptor].IsViable(originalGenom);
                             if (!isViable) population1[acceptor] = population1[RNG.Exclude(acceptor, population1.Length)].Clone();
@@ -103,7 +105,7 @@ namespace Martinus_prototyp2
                 Genom originalGenom = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
                 Sequence originalSeq = originalGenom.ToSequence();
                 Sequence MovedSeq = originalSeq.Clone();
-                int where = RNG.ChooseWhereToPlaceGene(originalGenom); //tohle je jen pro debug, pak vepsat přímo do MoveGene
+                int where = RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom); //tohle je jen pro debug, pak vepsat přímo do MoveGene
                 int what = RNG.Int(MovedSeq.Start.Length); //tohle je jen pro debug, pak vepsat přímo do MoveGene
                 Console.WriteLine(where);
                 Console.WriteLine(what);
@@ -149,6 +151,41 @@ namespace Martinus_prototyp2
                 foreach (Sequence sequence in population1) if (!sequence.IsViable2(originalGenom)) run = false; ;
             }
             return data;
+        }
+        public static void test2()
+        {
+            const int GENOM_LENGTH = 100;
+            const int GENE_NUMBER = 5;
+            const int GENE_MINIMUM_SIZE = 5;
+            const float GENE_DENSITY = 0.7f;
+
+            const int POPULATION_SIZE = 1_000;
+
+            const int MAX_GENERATION_NUMBER = 100;
+
+            const float ACTIVE_FRACTION_OF_SEQUENCES = 0.1f;
+
+            const int MIN_TRANSFER_SIZE = 30;
+
+            Genom originalGenom = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
+            Sequence originalSeq = originalGenom.ToSequence();
+            Sequence MovedSeq = originalSeq.Clone();
+            Console.WriteLine(originalSeq);
+            Console.WriteLine(originalGenom);
+            Console.WriteLine(MovedSeq.IsViable(originalGenom));
+            Console.WriteLine(originalSeq.IsViable(originalGenom));
+            for (int i = 0; i < 1000; i++) 
+            {
+                int where = RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom); 
+                int what = RNG.Int(MovedSeq.Start.Length); 
+                //Console.WriteLine(where);
+                //Console.WriteLine(what);
+                //foreach(Gene gen in MovedSeq.ToNonGeneArray(originalGenom)) Console.WriteLine(gen);
+                //MovedSeq.MoveGene(what, where);
+                //Console.WriteLine(MovedSeq);
+                Console.WriteLine(MovedSeq.IsViable(originalGenom));
+            }
+            
         }
     }
 }
