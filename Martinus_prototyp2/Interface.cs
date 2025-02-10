@@ -10,6 +10,8 @@ namespace Martinus_prototyp2
     internal class Interface
     {
         List <ProgressBar> progress;
+        DateTime StartTime = DateTime.Now;
+        public bool Finished = false;
         public Interface() 
         {
             progress = new List <ProgressBar>();
@@ -52,12 +54,15 @@ namespace Martinus_prototyp2
         public void Write()
         {
             string outp = "";
+            outp += $"Start:{StartTime}   Run:{DateTime.Now - StartTime}\n" ;
             for (int i = 0; i < progress.Count; i++)
             {
                 outp += $"{progress[i]}\n";
             }
+            if (Finished) { outp += $"End:{DateTime.Now}   Run:{DateTime.Now - StartTime}\n\n";  }
             Console.SetCursorPosition(0, 0);
-            Console.Write(outp);
+            Console.WriteLine(outp);
+            
         }
     }
    

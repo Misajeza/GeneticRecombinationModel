@@ -11,28 +11,28 @@ namespace Martinus_prototyp2
         public static Data Experiment1()
         {
             //------SETTINGS------
-            const int GENOM_LENGTH = 1_000;
-            const int GENE_NUMBER = 20;
+            const int GENOM_LENGTH = 10_000;
+            const int GENE_NUMBER = 200;
             const int GENE_MINIMUM_SIZE = 22;
             const float GENE_DENSITY = 0.7f;
 
-            const int POPULATION_SIZE = 1_000;
+            const int POPULATION_SIZE = 100;
 
             const int MAX_GENERATION_NUMBER = 100;
-            const int MAX_SHIFT_GENES_NUMBER = 10;
+            const int MAX_SHIFT_GENES_NUMBER = 70;
             const int MAX_REPETITIONS_NUMBER = 100;
 
             const float ACTIVE_FRACTION_OF_SEQUENCES = 0.1f;
 
-            const int MIN_TRANSFER_SIZE = 40;
-            const int MAX_TRANSFER_SIZE = 200;
+            const int MIN_TRANSFER_SIZE = 100;
+            const int MAX_TRANSFER_SIZE = 1000;
 
             //-------SETUP--------
             Data data = new Data("Experiment1", MAX_SHIFT_GENES_NUMBER, MAX_GENERATION_NUMBER);
             Interface UI = new Interface();
-            UI.NewProgressbar(new ProgressBar("Main", MAX_REPETITIONS_NUMBER, 0, 20));
-            UI.NewProgressbar(new ProgressBar("Shifting", MAX_SHIFT_GENES_NUMBER, 1));
-            UI.NewProgressbar(new ProgressBar("Generations", MAX_GENERATION_NUMBER, 2));
+            UI.NewProgressbar(new ProgressBar("Repetitions:", MAX_REPETITIONS_NUMBER, 1, 20));
+            UI.NewProgressbar(new ProgressBar("Translocations:", MAX_SHIFT_GENES_NUMBER, 1));
+            UI.NewProgressbar(new ProgressBar("Generations:", MAX_GENERATION_NUMBER, 1));
             //-------LOOP---------
             for (int repetition = 0; repetition < MAX_REPETITIONS_NUMBER; repetition++)
             {
@@ -44,7 +44,6 @@ namespace Martinus_prototyp2
                 {
                     UI.UpdateBar(1, shift);
                     //Console.WriteLine(MovedSeq);
-                    MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq,originalGenom)); 
 
                     Sequence[] population1 = new Sequence[POPULATION_SIZE];
                     Sequence[] population2 = new Sequence[POPULATION_SIZE];
@@ -73,10 +72,13 @@ namespace Martinus_prototyp2
                             if (isViable && isSucces) data.Viables[shift, generation]++;
                         }
                     }
+                    MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom));
                     //foreach (Sequence seq in population2) Console.WriteLine(seq.IsViable(originalGenom));
                     //foreach (Sequence seq in population2) Interface.WriteSequence(seq);
                 }
             }
+            UI.Finished = true;
+            UI.Write();
             return data;
         }
 
@@ -177,12 +179,12 @@ namespace Martinus_prototyp2
             for (int i = 0; i < 1000; i++) 
             {
                 int where = RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom); 
-                int what = RNG.Int(MovedSeq.Start.Length); 
-                //Console.WriteLine(where);
-                //Console.WriteLine(what);
-                //foreach(Gene gen in MovedSeq.ToNonGeneArray(originalGenom)) Console.WriteLine(gen);
-                //MovedSeq.MoveGene(what, where);
-                //Console.WriteLine(MovedSeq);
+                int what = RNG.Int(MovedSeq.Start.Length);
+                Console.WriteLine(where);
+                Console.WriteLine(what);
+                foreach (Gene gen in MovedSeq.ToNonGeneArray(originalGenom)) Console.WriteLine(gen);
+                MovedSeq.MoveGene(what, where);
+                Console.WriteLine(MovedSeq);
                 Console.WriteLine(MovedSeq.IsViable(originalGenom));
             }
             

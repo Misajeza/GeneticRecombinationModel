@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -51,7 +52,11 @@ namespace Martinus_prototyp2
         {
             int stopIndx = FindStopIndx(indx);
             if (stopIndx == -1) { return; }
-            Move(Start[indx].Position, Stop[stopIndx].Position - Start[indx].Position+1, pos);
+
+            int StartBalastSize = RNG.Int(Start[indx].Position-1 - FindNonCodingAreaStart(Start[indx].Position));
+            int EndBalastSize = RNG.Int(FindNonCodingAreaEnd(Stop[stopIndx].Position) - Stop[stopIndx].Position-1);
+
+            Move(Start[indx].Position-StartBalastSize, Stop[stopIndx].Position - Start[indx].Position+1+EndBalastSize+ StartBalastSize, pos);
             //string moved = DNA.Substring(Start[indx].Position, Stop[stopIndx].Position - Start[indx].Position);
             //if (pos > Start[indx].Position) if (pos < Stop[stopIndx].Position) pos = Start[indx].Position;
             //else pos -= Stop[stopIndx].Position - Start[indx].Position;
@@ -70,6 +75,7 @@ namespace Martinus_prototyp2
             if (pos >= initPos && pos < initPos + length) { return; }
             length -=1;
             string moved = DNA.Substring(initPos, length+1);
+            //Console.WriteLine(moved);
             if (initPos < pos)
             {
                 pos -= length;
@@ -133,7 +139,7 @@ namespace Martinus_prototyp2
                 for (int j = 0; j < Stop.Length; j++)
                 {
                     if (Start[i].Index != Stop[j].Index) continue;
-                    if (Stop[j].Position - Start[i].Position == original.Genes[Start[i].Index].Length && DNA.Substring(Start[i].Position, Stop[j].Position - Start[i].Position) == original.DNA.Substring(original.Genes[Start[i].Index].Start, original.Genes[Start[i].Index].Stop - original.Genes[Start[i].Index].Start)) isGene[Start[i].Index] = true;
+                    if (Stop[j].Position - Start[i].Position+1 == original.Genes[Start[i].Index].Length && DNA.Substring(Start[i].Position, Stop[j].Position - Start[i].Position) == original.DNA.Substring(original.Genes[Start[i].Index].Start, original.Genes[Start[i].Index].Stop - original.Genes[Start[i].Index].Start)) isGene[Start[i].Index] = true;
                 }
             }
             for (int i = 0; i < isGene.Length; i++) if (!isGene[i]) return false;
@@ -334,6 +340,24 @@ namespace Martinus_prototyp2
             int indx = FindStopIndx(i);
             if (indx == -1) return -1;
             return mark[i].Position;
+        }
+        int FindNonCodingAreaStart(int stop)
+        {
+            int closest = 0;
+            foreach(Mark mark in Stop)
+            {
+                if (mark.Position > closest && mark.Position < stop) closest = mark.Position;
+            }
+            return closest;
+        }
+        int FindNonCodingAreaEnd(int start)
+        {
+            int closest = DNA.Length-1;
+            foreach (Mark mark in Start)
+            {
+                if (mark.Position < closest && mark.Position > start) closest = mark.Position;
+            }
+            return closest;
         }
     }
     public struct Mark
