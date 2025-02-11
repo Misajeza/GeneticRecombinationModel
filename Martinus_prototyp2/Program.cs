@@ -7,7 +7,7 @@ namespace Martinus_prototyp2
         static void Main(string[] args)
         {
             //Experiments.test2();
-            Data data = Experiments.Experiment1();
+            Data data = Experiments.ExperimentMultiCore();
             CSV viableCSV = new CSV("ViableHybrides.csv", data.Viables);
             CSV hybridesCSV = new CSV("Hybrides.csv", data.Hybrides);
             viableCSV.Save();
