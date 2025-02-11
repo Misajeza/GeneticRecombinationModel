@@ -16,6 +16,14 @@ namespace Martinus_prototyp2
         {
             progress = new List <ProgressBar>();
         }
+        public async void AsyncRun()
+        {
+            while (!Finished)
+            {
+                Write();
+                await Task.Delay(1);
+            }
+        }
         public static void WriteSequence(Sequence seq) { //neníí funkční
 
             Gene[] unSorted = seq.ToGeneArray(); 
@@ -54,7 +62,7 @@ namespace Martinus_prototyp2
         public void Write()
         {
             string outp = "";
-            outp += $"Start:{StartTime}   Run:{DateTime.Now - StartTime}\n" ;
+            outp += $"Start:{StartTime}   Run:{(DateTime.Now - StartTime)}\n" ;
             for (int i = 0; i < progress.Count; i++)
             {
                 outp += $"{progress[i]}\n";

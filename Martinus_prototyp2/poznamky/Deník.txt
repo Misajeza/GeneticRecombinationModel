@@ -72,3 +72,10 @@ Nutné pøedìlat celou funkci.
 <4.1.2025>
 	Nalezena a opravena chyba, podobná døive zmínìné, ale vyskytovala se v opaèném pøípadì, tedy když bylo cílové pøed místem výchozím.
 Pøedìlán systém vytváøení polí genù, a polí mezer. Toto øešení se zdá být funkèní. 
+
+<9.2.2025>
+	první funkèní verze uvedena do provozu
+
+<10.2.2025>
+	provedeny testy na vyšších vstupních parametrech. Testy byli úspìšné.
+	Pøidána možnost paralelního spracování reprtice pomocí Paralel.For()
