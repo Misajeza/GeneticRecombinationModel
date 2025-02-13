@@ -7,13 +7,33 @@ namespace Martinus_prototyp2
         static void Main(string[] args)
         {
             //Experiments.test2();
-            Data data = Experiments.ExperimentMultiCore();
+
+            Data data = Experiments.LongRun();
             CSV viableCSV = new CSV("ViableHybrides.csv", data.Viables);
             CSV hybridesCSV = new CSV("Hybrides.csv", data.Hybrides);
             viableCSV.Save();
             hybridesCSV.Save();
 
             Console.WriteLine(data);
+
+
+
+            //Data[] data = Experiments.VlivMinTransferSize();
+            //for (int i = 0; i < data.Length; i++)
+            //{
+            //    CSV viableHybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\ViableHybrides{i*1000+22}.csv", data[i].Viables);
+            //    CSV hybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\Hybrides{i * 1000 + 22}.csv", data[i].Hybrides);
+            //    viableHybrides.Save();
+            //    hybrides.Save();
+            //}
+
+
+
+
+
+
+
+
 
 
             //string fileName = "C:\\Users\\42073\\source\\repos\\Martinus_prototyp2\\Martinus_prototyp2\\jsconfig1.json";
