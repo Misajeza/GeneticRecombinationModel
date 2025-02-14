@@ -240,6 +240,10 @@ namespace Martinus_prototyp2
                 //return outp;
             }
         }
+        public Genom ToGenom()
+        {
+            return new Genom(DNA, ToGeneArray());
+        }
         public override string ToString()
         {
             Gene[] genes = new Gene[Start.Length];
@@ -339,7 +343,8 @@ namespace Martinus_prototyp2
         {
             int indx = FindStopIndx(i);
             if (indx == -1) return -1;
-            return mark[i].Position;
+            //return mark[i].Position;
+            return mark[indx].Position;
         }
         int FindNonCodingAreaStart(int stop)
         {

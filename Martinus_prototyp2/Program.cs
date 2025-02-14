@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Martinus_prototyp2
 {
@@ -8,26 +10,39 @@ namespace Martinus_prototyp2
         {
             //Experiments.test2();
 
-            Data data = Experiments.LongRun();
-            CSV viableCSV = new CSV("ViableHybrides.csv", data.Viables);
-            CSV hybridesCSV = new CSV("Hybrides.csv", data.Hybrides);
-            viableCSV.Save();
-            hybridesCSV.Save();
+            //Data data = Experiments.LongRunWithCominucationInPopulation();
+            //CSV viableCSV = new CSV("ViableHybrides.csv", data.Viables);
+            //CSV hybridesCSV = new CSV("Hybrides.csv", data.Hybrides);
+            //viableCSV.Save();
+            //hybridesCSV.Save();
 
-            Console.WriteLine(data);
-
-
-
-            //Data[] data = Experiments.VlivMinTransferSize();
-            //for (int i = 0; i < data.Length; i++)
-            //{
-            //    CSV viableHybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\ViableHybrides{i*1000+22}.csv", data[i].Viables);
-            //    CSV hybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\Hybrides{i * 1000 + 22}.csv", data[i].Hybrides);
-            //    viableHybrides.Save();
-            //    hybrides.Save();
-            //}
+            //Console.WriteLine(data);
 
 
+            int[] minTransferSizes = { 200, 500, 800 };
+            Data[] data = Experiments.NightLongRunWithCominucationInPopulation1(minTransferSizes);
+            for (int i = 0; i < data.Length; i++)
+            {
+                CSV viableHybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\ViableHybrides{minTransferSizes[i]}.csv", data[i].Viables);
+                CSV hybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\Hybrides{minTransferSizes[i]}.csv", data[i].Hybrides);
+                string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data[i].Genoms)); 
+                File.WriteAllText($"Variable_MIN_TRANSFER_SIZE\\Genoms{minTransferSizes[i]}.json", json);
+                viableHybrides.Save();
+                hybrides.Save();
+            }
+            List<Genom[]> ToListOfMultipleGenoms(Genom[,] genoms)
+            {
+                List<Genom[]> outp = new List<Genom[]>();
+                for (int i = 0; i < genoms.GetLength(0); i++)
+                {
+                    outp.Add(new Genom[genoms.GetLength(1)]);
+                    for (int j = 0; j < genoms.GetLength(1); j++)
+                    {
+                        outp[i][j] = genoms[i, j];
+                    }
+                }
+                return outp;
+            }
 
 
 

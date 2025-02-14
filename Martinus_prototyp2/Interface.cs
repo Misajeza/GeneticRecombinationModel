@@ -59,7 +59,7 @@ namespace Martinus_prototyp2
         {
             progress[indx].Actual = val;
         }
-        public void Write()
+        public void Write(int line = 0)
         {
             string outp = "";
             outp += $"Start:{StartTime}   Run:{(DateTime.Now - StartTime)}\n" ;
@@ -68,7 +68,7 @@ namespace Martinus_prototyp2
                 outp += $"{progress[i]}\n";
             }
             if (Finished) { outp += $"End:{DateTime.Now}   Run:{DateTime.Now - StartTime}\n\n";  }
-            Console.SetCursorPosition(0, 0);
+            Console.SetCursorPosition(0, line);
             Console.WriteLine(outp);
             
         }
