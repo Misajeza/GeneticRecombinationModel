@@ -84,7 +84,7 @@ namespace Martinus_prototyp2
         public static Data ExperimentMultiCore()
         {
             //------SETTINGS------
-            const int GENOM_LENGTH = 100_000;
+            const int GENOM_LENGTH = 10_000;
             const int GENE_NUMBER = 200;
             const int GENE_MINIMUM_SIZE = 22;
             const float GENE_DENSITY = 0.7f;
@@ -97,8 +97,8 @@ namespace Martinus_prototyp2
 
             const float ACTIVE_FRACTION_OF_SEQUENCES = 0.1f;
 
-            const int MIN_TRANSFER_SIZE = 5_000;
-            const int MAX_TRANSFER_SIZE = 100_000;
+            const int MIN_TRANSFER_SIZE = 300;
+            const int MAX_TRANSFER_SIZE = 1_000;
 
             //-------SETUP--------
             Data data = new Data("Experiment1", MAX_SHIFT_GENES_NUMBER, MAX_GENERATION_NUMBER);
@@ -505,6 +505,204 @@ namespace Martinus_prototyp2
                 });
                 UI.Finished = true;
             }
+            //-------SETUP--------
+            //UI.Finished = true;
+            //UI.Write();
+            return data;
+        }
+        public static Data Experimanet2(int minTransfersize)//tohle dodělat a dneska večer spustit
+        {
+            //------SETTINGS------
+            const int GENOM_LENGTH = 10_000;
+            const int GENE_NUMBER = 200;
+            const int GENE_MINIMUM_SIZE = 22;
+            const float GENE_DENSITY = 0.7f;
+
+            const int POPULATION_SIZE = 100;
+
+            const int MAX_GENERATION_NUMBER = 10_000;
+            const int WRITE_DATA_PERIOD = 100;
+            const int SHIFT_GENES_NUMBER = 70;
+            const int MAX_REPETITIONS_NUMBER = 100;
+
+            const float ACTIVE_FRACTION_OF_SEQUENCES = 0.01f;
+            const float ACTIVE_FRACTION_OF_SEQUENCES_IN_POPULATION = 0.1f;
+
+            //const int MIN_TRANSFER_SIZE = 500;
+            const int MAX_TRANSFER_SIZE = 1000;
+                int MIN_TRANSFER_SIZE = minTransfersize;
+                Data data = new Data("Experiment1", MAX_REPETITIONS_NUMBER, MAX_GENERATION_NUMBER / WRITE_DATA_PERIOD, MAX_REPETITIONS_NUMBER, 12);
+                Interface UI = new Interface();
+                UI.NewProgressbar(new ProgressBar("Finished:", MAX_REPETITIONS_NUMBER * (MAX_GENERATION_NUMBER / WRITE_DATA_PERIOD), 1, 20)); ;
+                //-------LOOP---------
+                //for (int repetition = 0; repetition < MAX_REPETITIONS_NUMBER; repetition++)
+                //{
+                int counter = 0;
+                UI.AsyncRun();
+                Parallel.For(0, MAX_REPETITIONS_NUMBER, repetition =>
+                {
+                    Genom originalGenom = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
+                    Sequence originalSeq = originalGenom.ToSequence();
+                    Sequence MovedSeq = originalSeq.Clone();
+
+                    //Console.WriteLine(MovedSeq);
+
+                    Sequence[] population1 = new Sequence[POPULATION_SIZE];
+                    Sequence[] population2 = new Sequence[POPULATION_SIZE];
+                    for (int i = 0; i < SHIFT_GENES_NUMBER; i++)
+                        MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom));
+                    data.Genoms[repetition, 0] = originalGenom;
+                    data.Genoms[repetition, 1] = MovedSeq.ToGenom();
+                    for (int i = 0; i < population1.Length; i++)
+                    {
+                        population1[i] = originalSeq.Clone();
+                        population2[i] = MovedSeq.Clone();
+                    }
+                    int dataIndex = -1;
+                    for (int generation = 0; generation < MAX_GENERATION_NUMBER; generation++)
+                    {
+                        if (generation % WRITE_DATA_PERIOD == 0)
+                        {
+                            UI.UpdateBar(0, counter);
+                            dataIndex++;
+                            counter++;
+                        }
+                        for (int i = 0; i < population1.Length * ACTIVE_FRACTION_OF_SEQUENCES; i++)
+                        {
+                            int acceptor = RNG.Int(population1.Length);
+                            int donor = RNG.Int(population2.Length);
+                            int seqPos = RNG.Int(population2[donor].DNA.Length - MIN_TRANSFER_SIZE);
+                            int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                            if (seqLen > population2[donor].DNA.Length - seqPos) seqLen = population2[donor].DNA.Length - seqPos;
+                            bool isSucces = population1[acceptor].Integrate(population2[donor].Subsequence(seqPos, seqLen));
+                            bool isViable = population1[acceptor].IsViable(originalGenom);
+                            if (!isViable) population1[acceptor] = population1[RNG.Exclude(acceptor, population1.Length)].Clone();
+                            if (isSucces) data.Hybrides[repetition, dataIndex]++;
+                            if (isViable && isSucces) data.Viables[repetition, dataIndex]++;
+                        }
+                        for (int i = 0; i < population1.Length * ACTIVE_FRACTION_OF_SEQUENCES_IN_POPULATION; i++)
+                        {
+                            int acceptor = RNG.Int(population1.Length);
+                            int donor = RNG.Int(population1.Length);
+                            int seqPos = RNG.Int(population1[donor].DNA.Length - MIN_TRANSFER_SIZE);
+                            int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                            if (seqLen > population1[donor].DNA.Length - seqPos) seqLen = population1[donor].DNA.Length - seqPos;
+                            bool isSucces = population1[acceptor].Integrate(population1[donor].Subsequence(seqPos, seqLen));
+                            bool isViable = population1[acceptor].IsViable(originalGenom);
+                            if (!isViable) population1[acceptor] = population1[RNG.Exclude(acceptor, population1.Length)].Clone();
+                        }
+                        for (int i = 2; i < 12; i++)
+                        {
+                            data.Genoms[repetition, i] = population1[RNG.Int(population1.Length)].ToGenom();
+
+                        }
+                        //Console.WriteLine("\n\n\n\n\n\ngfkutfdktuf");
+                    }
+                    //MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom));
+                    //foreach (Sequence seq in population2) Console.WriteLine(seq.IsViable(originalGenom));
+                    //foreach (Sequence seq in population2) Interface.WriteSequence(seq);
+                    //UI.UpdateBar(0, finishedCounter++);
+                });
+                UI.Finished = true;
+            //-------SETUP--------
+            //UI.Finished = true;
+            //UI.Write();
+            return data;
+        }
+        public static Data Experimanet3(int minTransfersize)//tohle dodělat a dneska večer spustit
+        {
+            //------SETTINGS------
+            const int GENOM_LENGTH = 10_000;
+            const int GENE_NUMBER = 200;
+            const int GENE_MINIMUM_SIZE = 22;
+            const float GENE_DENSITY = 0.7f;
+
+            const int POPULATION_SIZE = 100;
+
+            const int MAX_GENERATION_NUMBER = 10_000;
+            const int WRITE_DATA_PERIOD = 100;
+            const int SHIFT_GENES_NUMBER = 20;
+            const int MAX_REPETITIONS_NUMBER = 100;
+
+            const float ACTIVE_FRACTION_OF_SEQUENCES = 0.01f;
+            const float ACTIVE_FRACTION_OF_SEQUENCES_IN_POPULATION = 0.1f;
+
+            //const int MIN_TRANSFER_SIZE = 500;
+            const int MAX_TRANSFER_SIZE = 1000;
+            int MIN_TRANSFER_SIZE = minTransfersize;
+            Data data = new Data("Experiment1", MAX_REPETITIONS_NUMBER, MAX_GENERATION_NUMBER / WRITE_DATA_PERIOD, MAX_REPETITIONS_NUMBER, 12);
+            Interface UI = new Interface();
+            UI.NewProgressbar(new ProgressBar("Finished:", MAX_REPETITIONS_NUMBER * (MAX_GENERATION_NUMBER / WRITE_DATA_PERIOD), 1, 20)); ;
+            //-------LOOP---------
+            //for (int repetition = 0; repetition < MAX_REPETITIONS_NUMBER; repetition++)
+            //{
+            int counter = 0;
+            UI.AsyncRun();
+            Parallel.For(0, MAX_REPETITIONS_NUMBER, repetition =>
+            {
+                Genom originalGenom = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
+                Sequence originalSeq = originalGenom.ToSequence();
+                Sequence MovedSeq = originalSeq.Clone();
+
+                //Console.WriteLine(MovedSeq);
+
+                Sequence[] population1 = new Sequence[POPULATION_SIZE];
+                Sequence[] population2 = new Sequence[POPULATION_SIZE];
+                for (int i = 0; i < SHIFT_GENES_NUMBER; i++)
+                    MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom));
+                data.Genoms[repetition, 0] = originalGenom;
+                data.Genoms[repetition, 1] = MovedSeq.ToGenom();
+                for (int i = 0; i < population1.Length; i++)
+                {
+                    population1[i] = originalSeq.Clone();
+                    population2[i] = MovedSeq.Clone();
+                }
+                int dataIndex = -1;
+                for (int generation = 0; generation < MAX_GENERATION_NUMBER; generation++)
+                {
+                    if (generation % WRITE_DATA_PERIOD == 0)
+                    {
+                        UI.UpdateBar(0, counter);
+                        dataIndex++;
+                        counter++;
+                    }
+                    for (int i = 0; i < population1.Length * ACTIVE_FRACTION_OF_SEQUENCES; i++)
+                    {
+                        int acceptor = RNG.Int(population1.Length);
+                        int donor = RNG.Int(population2.Length);
+                        int seqPos = RNG.Int(population2[donor].DNA.Length - MIN_TRANSFER_SIZE);
+                        int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                        if (seqLen > population2[donor].DNA.Length - seqPos) seqLen = population2[donor].DNA.Length - seqPos;
+                        bool isSucces = population1[acceptor].Integrate(population2[donor].Subsequence(seqPos, seqLen));
+                        bool isViable = population1[acceptor].IsViable(originalGenom);
+                        if (!isViable) population1[acceptor] = population1[RNG.Exclude(acceptor, population1.Length)].Clone();
+                        if (isSucces) data.Hybrides[repetition, dataIndex]++;
+                        if (isViable && isSucces) data.Viables[repetition, dataIndex]++;
+                    }
+                    for (int i = 0; i < population1.Length * ACTIVE_FRACTION_OF_SEQUENCES_IN_POPULATION; i++)
+                    {
+                        int acceptor = RNG.Int(population1.Length);
+                        int donor = RNG.Int(population1.Length);
+                        int seqPos = RNG.Int(population1[donor].DNA.Length - MIN_TRANSFER_SIZE);
+                        int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                        if (seqLen > population1[donor].DNA.Length - seqPos) seqLen = population1[donor].DNA.Length - seqPos;
+                        bool isSucces = population1[acceptor].Integrate(population1[donor].Subsequence(seqPos, seqLen));
+                        bool isViable = population1[acceptor].IsViable(originalGenom);
+                        if (!isViable) population1[acceptor] = population1[RNG.Exclude(acceptor, population1.Length)].Clone();
+                    }
+                    for (int i = 2; i < 12; i++)
+                    {
+                        data.Genoms[repetition, i] = population1[RNG.Int(population1.Length)].ToGenom();
+
+                    }
+                    //Console.WriteLine("\n\n\n\n\n\ngfkutfdktuf");
+                }
+                //MovedSeq.MoveGene(RNG.Int(MovedSeq.Start.Length), RNG.ChooseWhereToPlaceGene(MovedSeq, originalGenom));
+                //foreach (Sequence seq in population2) Console.WriteLine(seq.IsViable(originalGenom));
+                //foreach (Sequence seq in population2) Interface.WriteSequence(seq);
+                //UI.UpdateBar(0, finishedCounter++);
+            });
+            UI.Finished = true;
             //-------SETUP--------
             //UI.Finished = true;
             //UI.Write();

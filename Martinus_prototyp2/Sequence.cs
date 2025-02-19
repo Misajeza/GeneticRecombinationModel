@@ -125,7 +125,7 @@ namespace Martinus_prototyp2
                 for (int j = 0; j < Stop.Length; j++)
                 {
                     if (Start[i].Index != Stop[j].Index) continue;
-                    if (Stop[j].Position - Start[i].Position+1 == original.Genes[Start[i].Index].Length) isGene[Start[i].Index] = true;
+                    if (Stop[j].Position - Start[i].Position+1 == original.Genes[Start[i].Index].Length && !isGene[Start[i].Index]) isGene[Start[i].Index] = true;
                 }
             }
             for (int i = 0; i < isGene.Length; i++) if (!isGene[i]) return false; 

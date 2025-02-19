@@ -10,26 +10,29 @@ namespace Martinus_prototyp2
         {
             //Experiments.test2();
 
-            //Data data = Experiments.LongRunWithCominucationInPopulation();
-            //CSV viableCSV = new CSV("ViableHybrides.csv", data.Viables);
-            //CSV hybridesCSV = new CSV("Hybrides.csv", data.Hybrides);
-            //viableCSV.Save();
-            //hybridesCSV.Save();
+            Data data = Experiments.ExperimentMultiCore();
+            CSV viableCSV = new CSV("ViableHybrides_test.csv", data.Viables);
+            CSV hybridesCSV = new CSV("Hybrides_test.csv", data.Hybrides);
+            viableCSV.Save();
+            hybridesCSV.Save();
 
-            //Console.WriteLine(data);
+            //string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data.Genoms));
+            //File.WriteAllText("Genoms.json", json);
+
+            Console.WriteLine(data);
 
 
-            int[] minTransferSizes = { 200, 500, 800 };
-            Data[] data = Experiments.NightLongRunWithCominucationInPopulation1(minTransferSizes);
-            for (int i = 0; i < data.Length; i++)
-            {
-                CSV viableHybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\ViableHybrides{minTransferSizes[i]}.csv", data[i].Viables);
-                CSV hybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\Hybrides{minTransferSizes[i]}.csv", data[i].Hybrides);
-                string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data[i].Genoms)); 
-                File.WriteAllText($"Variable_MIN_TRANSFER_SIZE\\Genoms{minTransferSizes[i]}.json", json);
-                viableHybrides.Save();
-                hybrides.Save();
-            }
+            //int[] minTransferSizes = { 200, 500, 800 };
+            //Data[] data = Experiments.NightLongRunWithCominucationInPopulation1(minTransferSizes);
+            //for (int i = 0; i < data.Length; i++)
+            //{
+            //    CSV viableHybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\ViableHybrides{minTransferSizes[i]}.csv", data[i].Viables);
+            //    CSV hybrides = new CSV($"Variable_MIN_TRANSFER_SIZE\\Hybrides{minTransferSizes[i]}.csv", data[i].Hybrides);
+            //    string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data[i].Genoms)); 
+            //    File.WriteAllText($"Variable_MIN_TRANSFER_SIZE\\Genoms{minTransferSizes[i]}.json", json);
+            //    viableHybrides.Save();
+            //    hybrides.Save();
+            //}
             List<Genom[]> ToListOfMultipleGenoms(Genom[,] genoms)
             {
                 List<Genom[]> outp = new List<Genom[]>();
@@ -44,7 +47,7 @@ namespace Martinus_prototyp2
                 return outp;
             }
 
-
+             
 
 
 
