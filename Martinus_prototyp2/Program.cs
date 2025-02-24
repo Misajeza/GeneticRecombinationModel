@@ -9,15 +9,16 @@ namespace Martinus_prototyp2
         static void Main(string[] args)
         {
             //Experiments.test2();
+            //Experiments.test2();
 
-            Data data = Experiments.ExperimentMultiCore();
-            CSV viableCSV = new CSV("ViableHybrides_test.csv", data.Viables);
-            CSV hybridesCSV = new CSV("Hybrides_test.csv", data.Hybrides);
+            Data data = Experiments.Experimanet2(300);
+            CSV viableCSV = new CSV("ViableHybrides_test2.csv", data.Viables);
+            CSV hybridesCSV = new CSV("Hybrides_test2.csv", data.Hybrides);
             viableCSV.Save();
             hybridesCSV.Save();
 
-            //string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data.Genoms));
-            //File.WriteAllText("Genoms.json", json);
+            string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data.Genoms));
+            File.WriteAllText("Genoms_test2.json", json);
 
             Console.WriteLine(data);
 

@@ -74,15 +74,28 @@ namespace Martinus_prototyp2
             //Gene[] range = sequence.ToNonGeneArray(original);
             //int rndCluster = random.Next(range.Length);
             //return random.Next(range[rndCluster].Start, range[rndCluster].Stop);
+            Gene[] spaces;
+            int[] weights;
+            Gene selectedSpace;
             switch (mode)
             {
                 case PlaceMode.OutOfGenes:
-                    Gene[] spaces = sequence.ToNonGeneArray(HKGenes);
-                    int[] weights = new int[spaces.Length];
+                    spaces = sequence.ToNonGeneArray(HKGenes);
+                    weights = new int[spaces.Length];
                     for (int i = 0; i < weights.Length; i++) { weights[i] = spaces[i].Length-1; if (weights[i] == 0) weights[i] = 1; }
-                    Gene selectedSpace = spaces[WeightedChoice(weights)];
+                    selectedSpace = spaces[WeightedChoice(weights)];
                     //Gene selectedSpace = spaces[random.Next(spaces.Length)];
                     return random.Next(selectedSpace.Start, selectedSpace.Stop);
+
+                //case PlaceMode.Cluster://dodělat
+                //    int ClustringIndex = 2;
+                //    spaces = sequence.ToNonGeneArray(HKGenes);
+                //    weights = new int[spaces.Length];
+                //    for (int i = 0; i < weights.Length; i++) { weights[i] = spaces[i].Length - 1; if (weights[i] == 0) weights[i] = 1; }
+                //    selectedSpace = spaces[WeightedChoice(weights)];
+                //    //Gene selectedSpace = spaces[random.Next(spaces.Length)];
+                //    int[] indivWeidgt = new int[selectedSpace.Length];
+                //    return random.Next(selectedSpace.Start, selectedSpace.Stop);
             }
             return -1;
             //Gene[] Genes= sequence.ToGeneArray();
