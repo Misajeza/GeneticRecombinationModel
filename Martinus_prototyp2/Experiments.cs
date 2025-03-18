@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -409,7 +410,7 @@ namespace Martinus_prototyp2
         }
         public static Data[] NightLongRunWithCominucationInPopulation1(int[] minTransfersizes)//tohle dodělat a dneska večer spustit
         {
-            //------SETTINGS------
+            //------SETTINGS------ 
             const int GENOM_LENGTH = 10_000;
             const int GENE_NUMBER = 200;
             const int GENE_MINIMUM_SIZE = 22;
@@ -814,6 +815,138 @@ namespace Martinus_prototyp2
                 Console.WriteLine(MovedSeq.IsViable(originalGenom));
             }
             
+        }
+
+        public static Data HGTvsTranslokace()
+        {
+            //------SETTINGS------
+            const int GENOM_LENGTH = 10_000;
+            const int GENE_NUMBER = 200;
+            const int GENE_MINIMUM_SIZE = 22;
+            const float GENE_DENSITY = 0.7f;
+
+            const int MAX_GENERATION_NUMBER = 100;
+            const int MAX_TRANSLOCATED_GENES = 70;
+            const int MAX_REPETITIONS_NUMBER = 100;
+
+            const int MIN_TRANSFER_SIZE = 200;
+            const int MAX_TRANSFER_SIZE = 1000;
+
+            //-------SETUP--------
+            Data data = new Data("HGTvsTranslokace",MAX_REPETITIONS_NUMBER, MAX_TRANSLOCATED_GENES);
+            Interface UI = new Interface();
+
+            UI.NewProgressbar(new ProgressBar("Progress:", MAX_REPETITIONS_NUMBER*MAX_GENERATION_NUMBER*MAX_TRANSLOCATED_GENES, 1, 20));
+            //UI.NewProgressbar(new ProgressBar("Repetitions:", MAX_REPETITIONS_NUMBER, 1, 20));
+            //UI.NewProgressbar(new ProgressBar("Translocations:", MAX_TRANSLOCATED_GENES, 1));
+            //UI.NewProgressbar(new ProgressBar("Generations:", MAX_GENERATION_NUMBER, 1));
+
+            //-------LOOP---------
+            int counter = 0;
+            UI.AsyncRun();
+            Parallel.For(0, MAX_REPETITIONS_NUMBER, repetition =>
+            {
+                Genom original = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
+                Sequence organism2 = original.ToSequence();
+
+                for (int translocations = 0; translocations < MAX_TRANSLOCATED_GENES; translocations++)
+                {
+                    int sucessfulSum = 0;
+                    int nonlethalSum = 0;
+                    for (int generations = 0; generations < MAX_GENERATION_NUMBER; generations++)
+                    {
+                        int seqPos = RNG.Int(organism2.DNA.Length - MIN_TRANSFER_SIZE);
+                        int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                        if (seqLen > organism2.DNA.Length - seqPos) seqPos = organism2.DNA.Length - seqPos;
+
+                        Sequence organism1 = original.ToSequence();
+
+                        if (organism1.Integrate(organism2.Subsequence(seqPos, seqLen)))
+                        {
+                            sucessfulSum++;
+                            if (organism1.IsViable(original)) nonlethalSum++;
+                        }
+                        //UI.UpdateBar(2, generations);
+                        //UI.Write();
+                        counter++;
+                    }
+                    data.Hybrides[repetition, translocations] = sucessfulSum;
+                    data.Viables[repetition, translocations] = nonlethalSum;
+
+                    organism2.MoveGene(RNG.Int(organism2.Start.Length), RNG.ChooseWhereToPlaceGene(organism2, original));
+
+                    //UI.UpdateBar(1, translocations);
+                    UI.UpdateBar(0, counter);
+                }
+                //UI.UpdateBar(0, repetition);
+            });
+            return data;
+        }
+        public static Data HGTvsSNP()
+        {
+            //------SETTINGS------
+            const int GENOM_LENGTH = 10_000;
+            const int GENE_NUMBER = 200;
+            const int GENE_MINIMUM_SIZE = 22;
+            const float GENE_DENSITY = 0.7f;
+
+            const int MAX_GENERATION_NUMBER = 100;
+            const int MAX_TRANSLOCATED_GENES = 70;
+            const int MAX_REPETITIONS_NUMBER = 100;
+
+            const int MIN_TRANSFER_SIZE = 200;
+            const int MAX_TRANSFER_SIZE = 1000;
+
+            //-------SETUP--------
+            Data data = new Data("HGTvsTranslokace", MAX_REPETITIONS_NUMBER, MAX_TRANSLOCATED_GENES);
+            Interface UI = new Interface();
+
+            UI.NewProgressbar(new ProgressBar("Progress:", MAX_REPETITIONS_NUMBER * MAX_GENERATION_NUMBER * MAX_TRANSLOCATED_GENES, 1, 20));
+            //UI.NewProgressbar(new ProgressBar("Repetitions:", MAX_REPETITIONS_NUMBER, 1, 20));
+            //UI.NewProgressbar(new ProgressBar("Translocations:", MAX_TRANSLOCATED_GENES, 1));
+            //UI.NewProgressbar(new ProgressBar("Generations:", MAX_GENERATION_NUMBER, 1));
+
+            //-------LOOP---------
+            int counter = 0;
+            UI.AsyncRun();
+            Parallel.For(0, MAX_REPETITIONS_NUMBER, repetition =>
+            {
+                Genom original = RNG.GenerateGenom(GENOM_LENGTH, GENE_DENSITY, GENE_NUMBER, GENE_MINIMUM_SIZE);
+                Sequence organism2 = original.ToSequence();
+
+                for (int translocations = 0; translocations < MAX_TRANSLOCATED_GENES; translocations++)
+                {
+                    int sucessfulSum = 0;
+                    int nonlethalSum = 0;
+                    for (int generations = 0; generations < MAX_GENERATION_NUMBER; generations++)
+                    {
+                        int seqPos = RNG.Int(organism2.DNA.Length - MIN_TRANSFER_SIZE);
+                        int seqLen = RNG.Int(MIN_TRANSFER_SIZE, MAX_TRANSFER_SIZE);
+                        if (seqLen > organism2.DNA.Length - seqPos) seqPos = organism2.DNA.Length - seqPos;
+
+                        Sequence organism1 = original.ToSequence();
+
+                        if (organism1.Integrate(organism2.Subsequence(seqPos, seqLen)))
+                        {
+                            sucessfulSum++;
+                            if (organism1.IsViable(original)) nonlethalSum++;
+                        }
+                        //UI.UpdateBar(2, generations);
+                        //UI.Write();
+                        counter++;
+                    }
+                    data.Hybrides[repetition, translocations] = sucessfulSum;
+                    data.Viables[repetition, translocations] = nonlethalSum;
+
+                    //organism2.MoveGene(RNG.Int(organism2.Start.Length), RNG.ChooseWhereToPlaceGene(organism2, original));
+                    organism2.Mutate(RNG.random, 40);
+
+                    //UI.UpdateBar(1, translocations);
+                    UI.UpdateBar(0, counter);
+                }
+                //UI.UpdateBar(0, repetition);
+            });
+            return data;
         }
     }
 }

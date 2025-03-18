@@ -8,7 +8,7 @@ namespace Martinus_prototyp2
 {
     internal static class RNG
     {
-        static Random random = new Random();
+        public static Random random = new Random();
         public static int Int() { return random.Next(); }
         public static int Int(int max) { return random.Next(max);}
         public static int Int(int min, int max) { return random.Next(min,max);}

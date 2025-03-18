@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using System.Xml;
 using static System.Formats.Asn1.AsnWriter;
 
@@ -144,6 +145,16 @@ namespace Martinus_prototyp2
             }
             for (int i = 0; i < isGene.Length; i++) if (!isGene[i]) return false;
             return true;
+        }
+        public void Mutate(Random random,int amount)
+        {
+            Char[] nucleotides = DNA.ToCharArray();
+            for (int i = 0;i < amount;i++) nucleotides[random.Next(nucleotides.Length)] = Genetics.Nucleotides[random.Next(Genetics.Nucleotides.Length)];
+            DNA = new string(nucleotides);
+        }
+        public void MakeSNP(int pos, char nucleotide) 
+        { 
+            DNA = DNA.Substring(0,pos) + nucleotide + DNA.Substring(pos+1);
         }
         public enum Status
         {
@@ -321,6 +332,7 @@ namespace Martinus_prototyp2
 
 
         }
+        
         Gene GetGene(int i)
         {
             return new Gene(Start[i].Index, Start[i].Position, Stop[FindStopIndx(i)].Position);

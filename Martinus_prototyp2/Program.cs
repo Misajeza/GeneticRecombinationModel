@@ -11,14 +11,14 @@ namespace Martinus_prototyp2
             //Experiments.test2();
             //Experiments.test2();
 
-            Data data = Experiments.Experimanet2(300);
-            CSV viableCSV = new CSV("ViableHybrides_test2.csv", data.Viables);
-            CSV hybridesCSV = new CSV("Hybrides_test2.csv", data.Hybrides);
+            Data data = Experiments.HGTvsSNP();
+            CSV viableCSV = new CSV("ViableHybrides_HGTvsSNP.csv", data.Viables);
+            CSV hybridesCSV = new CSV("Hybrides_HGTvsSNP.csv", data.Hybrides);
             viableCSV.Save();
             hybridesCSV.Save();
 
-            string json = JsonSerializer.Serialize(ToListOfMultipleGenoms(data.Genoms));
-            File.WriteAllText("Genoms_test2.json", json);
+            //string json = JsonSerializer.Serialize(DataManagement.ToListOfMultipleGenoms(data.Genoms));
+            //File.WriteAllText("Genoms_test2.json", json);
 
             Console.WriteLine(data);
 
@@ -34,21 +34,9 @@ namespace Martinus_prototyp2
             //    viableHybrides.Save();
             //    hybrides.Save();
             //}
-            List<Genom[]> ToListOfMultipleGenoms(Genom[,] genoms)
-            {
-                List<Genom[]> outp = new List<Genom[]>();
-                for (int i = 0; i < genoms.GetLength(0); i++)
-                {
-                    outp.Add(new Genom[genoms.GetLength(1)]);
-                    for (int j = 0; j < genoms.GetLength(1); j++)
-                    {
-                        outp[i][j] = genoms[i, j];
-                    }
-                }
-                return outp;
-            }
 
-             
+
+
 
 
 
