@@ -820,7 +820,19 @@ namespace Martinus_prototyp2
         public static Data HGTvsTranslokace()
         {
             //------SETTINGS------
-            const int GENOM_LENGTH = 10_000;
+            //const int GENOM_LENGTH = 10_000;
+            //const int GENE_NUMBER = 200;
+            //const int GENE_MINIMUM_SIZE = 22;
+            //const float GENE_DENSITY = 0.7f;
+
+            //const int MAX_GENERATION_NUMBER = 100;
+            //const int MAX_TRANSLOCATED_GENES = 70;
+            //const int MAX_REPETITIONS_NUMBER = 100;
+
+            //const int MIN_TRANSFER_SIZE = 200;
+            //const int MAX_TRANSFER_SIZE = 1000;
+
+            const int GENOM_LENGTH = 100_000;
             const int GENE_NUMBER = 200;
             const int GENE_MINIMUM_SIZE = 22;
             const float GENE_DENSITY = 0.7f;
@@ -829,8 +841,8 @@ namespace Martinus_prototyp2
             const int MAX_TRANSLOCATED_GENES = 70;
             const int MAX_REPETITIONS_NUMBER = 100;
 
-            const int MIN_TRANSFER_SIZE = 200;
-            const int MAX_TRANSFER_SIZE = 1000;
+            const int MIN_TRANSFER_SIZE = 2000;
+            const int MAX_TRANSFER_SIZE = 10_000;
 
             //-------SETUP--------
             Data data = new Data("HGTvsTranslokace",MAX_REPETITIONS_NUMBER, MAX_TRANSLOCATED_GENES);
@@ -885,7 +897,19 @@ namespace Martinus_prototyp2
         public static Data HGTvsSNP()
         {
             //------SETTINGS------
-            const int GENOM_LENGTH = 10_000;
+            //const int GENOM_LENGTH = 10_000;
+            //const int GENE_NUMBER = 200;
+            //const int GENE_MINIMUM_SIZE = 22;
+            //const float GENE_DENSITY = 0.7f;
+
+            //const int MAX_GENERATION_NUMBER = 100;
+            //const int MAX_TRANSLOCATED_GENES = 70;
+            //const int MAX_REPETITIONS_NUMBER = 100;
+
+            //const int MIN_TRANSFER_SIZE = 200;
+            //const int MAX_TRANSFER_SIZE = 1000;
+
+            const int GENOM_LENGTH = 100_000;
             const int GENE_NUMBER = 200;
             const int GENE_MINIMUM_SIZE = 22;
             const float GENE_DENSITY = 0.7f;
@@ -894,8 +918,8 @@ namespace Martinus_prototyp2
             const int MAX_TRANSLOCATED_GENES = 70;
             const int MAX_REPETITIONS_NUMBER = 100;
 
-            const int MIN_TRANSFER_SIZE = 200;
-            const int MAX_TRANSFER_SIZE = 1000;
+            const int MIN_TRANSFER_SIZE = 2000;
+            const int MAX_TRANSFER_SIZE = 10_000;
 
             //-------SETUP--------
             Data data = new Data("HGTvsTranslokace", MAX_REPETITIONS_NUMBER, MAX_TRANSLOCATED_GENES);
@@ -939,7 +963,7 @@ namespace Martinus_prototyp2
                     data.Viables[repetition, translocations] = nonlethalSum;
 
                     //organism2.MoveGene(RNG.Int(organism2.Start.Length), RNG.ChooseWhereToPlaceGene(organism2, original));
-                    organism2.Mutate(RNG.random, 40);
+                    organism2.Mutate(RNG.random, 400);
 
                     //UI.UpdateBar(1, translocations);
                     UI.UpdateBar(0, counter);

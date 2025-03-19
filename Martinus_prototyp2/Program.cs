@@ -12,8 +12,8 @@ namespace Martinus_prototyp2
             //Experiments.test2();
 
             Data data = Experiments.HGTvsSNP();
-            CSV viableCSV = new CSV("ViableHybrides_HGTvsSNP.csv", data.Viables);
-            CSV hybridesCSV = new CSV("Hybrides_HGTvsSNP.csv", data.Hybrides);
+            CSV viableCSV = new CSV("ViableHybrides_HGTvsSNP_100k.csv", data.Viables);
+            CSV hybridesCSV = new CSV("Hybrides_HGTvsSNP_100k.csv", data.Hybrides);
             viableCSV.Save();
             hybridesCSV.Save();
 
